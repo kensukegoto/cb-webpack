@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+    commands:
+      - echo 'Installing...'
+      - npm install
+      - pip install --upgrade awscli
+  build:
+    commands:
+      - echo 'Building...'
+      - npx webpack build --mode production
+  post_build:
+    commands:
+    # https://docs.aws.amazon.com/cli/latest/reference/s3/sync.html
+    # --exact-timestamps 更新時間が違うがsizeが同じ場合に同期されない問題を解消
+    # --delete コピー元のディレクトリで何か削除したらs3でも削除される
+      - aws s3 sync --exact-timestamps --delete dist s3://cb-dev-static
